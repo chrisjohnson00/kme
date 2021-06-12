@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer, KafkaProducer
 from json import loads, dumps
 import jsonpickle
+import logging
 
 
 class KMEMessage:
@@ -21,6 +22,8 @@ class KMEMessage:
 
     def load(self, json_ojb):
         self = jsonpickle.decode(json_ojb)
+        if not hasattr(self, 'completion_topic'):
+            self.completion_topic = None
         return self
 
 
@@ -41,6 +44,7 @@ class KME:
 
     def send_message(self, message: KMEMessage):
         producer = self.create_producer()
+        logging.debug(f"Sending message to {message.topic}")
         future = producer.send(topic=message.topic,
                                value=jsonpickle.encode(message))
         future.get(timeout=60)
@@ -67,6 +71,7 @@ class KME:
         self.consumer_group = consumer_group
         consumer = self.create_consumer()
         for message in consumer:
+            logging.debug(f"{topics} has produced a message, calling {callback}")
             self.process_message(message, callback)
 
     def process_message(self, message, callback):
@@ -74,4 +79,5 @@ class KME:
         kme_message = KMEMessage(topic='').load(message_body)
         processed_message = callback(kme_message)
         if kme_message.completion_topic:
+            logging.debug(f"Completion topic existed, sending message to {kme_message.completion_topic}")
             self.send_message(processed_message)

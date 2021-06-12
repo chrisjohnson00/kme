@@ -21,3 +21,16 @@ def test_load():
     assert kme.message == "foo the bar"
     assert kme.topic == 'foobar'
     assert kme.completion_topic == 'something'
+
+
+def test_load_none_fields():
+    json_str = '''
+    {
+        "py/object":"kme.kme.KMEMessage",
+        "topic":"foobar"
+    }
+    '''
+    kme = KMEMessage(topic='barfoo')
+    kme = kme.load(json_str)
+    assert hasattr(kme, 'completion_topic')
+    assert kme.topic == 'foobar'
