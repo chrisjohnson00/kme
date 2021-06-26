@@ -1,6 +1,7 @@
 from kme import KME, KMEMessage
 from unittest import mock
 from kafka import KafkaConsumer, KafkaProducer
+import asyncio
 
 
 def test_send_message():
@@ -44,7 +45,7 @@ def test_process_message_no_completion_topic():
         with mock.patch.object(KME, 'send_message') as sm:
             mock_message = mock.Mock(value='Messabe body')
             kme = KME(bootstrap_servers=['foobar'])
-            kme.process_message(mock_message, mock_callback)
+            asyncio.run(kme.process_message(mock_message, mock_callback))
             sm.assert_not_called()
             message_load.assert_called_once()
 
@@ -55,7 +56,7 @@ def test_process_message_with_completion_topic():
         with mock.patch.object(KME, 'send_message') as sm:
             mock_message = mock.Mock(value='Messabe body')
             kme = KME(bootstrap_servers=['foobar'])
-            kme.process_message(mock_message, mock_callback)
+            asyncio.run(kme.process_message(mock_message, mock_callback))
             sm.assert_called_once()
             message_load.assert_called_once()
 

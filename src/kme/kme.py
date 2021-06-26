@@ -2,6 +2,7 @@ from kafka import KafkaConsumer, KafkaProducer
 from json import loads, dumps
 import jsonpickle
 import logging
+import asyncio
 
 
 class KMEMessage:
@@ -72,9 +73,9 @@ class KME:
         consumer = self.create_consumer()
         for message in consumer:
             logging.debug(f"{topics} has produced a message, calling {callback}")
-            self.process_message(message, callback)
+            asyncio.run(self.process_message(message, callback))
 
-    def process_message(self, message, callback):
+    async def process_message(self, message, callback):
         message_body = message.value
         kme_message = KMEMessage(topic='').load(message_body)
         processed_message = callback(kme_message)
