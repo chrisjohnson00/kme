@@ -77,7 +77,8 @@ class KME:
     def process_message(self, message, callback):
         message_body = message.value
         kme_message = KMEMessage(topic='').load(message_body)
-        processed_message = callback(kme_message)
+        processed_message = callback(kme_message)  # type: KMEMessage
         if kme_message.completion_topic:
             logging.debug(f"Completion topic existed, sending message to {kme_message.completion_topic}")
+            processed_message.topic = kme_message.completion_topic
             self.send_message(processed_message)

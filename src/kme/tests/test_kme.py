@@ -57,8 +57,11 @@ def test_process_message_with_completion_topic():
             kme = KME(bootstrap_servers=['foobar'])
             kme.process_message(mock_message, mock_callback)
             sm.assert_called_once()
+            kall = sm.call_args
+            message = kall.args[0]  # type: KMEMessage
+            assert message.topic == "foobar"
             message_load.assert_called_once()
 
 
 def mock_callback(message: KMEMessage):
-    return True
+    return KMEMessage(topic='')
